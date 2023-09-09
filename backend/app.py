@@ -16,6 +16,7 @@ attendance_collection = db["Attendance"]
 
 @app.route('/test_db_connection')
 def test_db():
+    
     test_doc = {"message": "MongoDB connection successful!"}
     id = teacher_collection.insert_one(test_doc).inserted_id
     return "Test document inserted into MongoDB."
@@ -97,6 +98,19 @@ def get_student_course_schedule_and_attendance(student_id, date):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+
+@app.route('/teacher/<course_id>/validate', methods=['GET'])
+def get_validation_pictures(course_id):
+    try:
+        course_records = student_collection.find({"course_ids": ObjectId(course_id), "failsafe": {"$ne": None}})
+
+        # Extract pictures from the records
+        pictures = [record["photo"] for record in course_records]
+
+        return jsonify(pictures), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
