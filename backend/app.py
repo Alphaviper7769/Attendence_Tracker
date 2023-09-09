@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-
-client = MongoClient("mongodb://localhost:27017/") 
+client = MongoClient("mongodb+srv://Alphaviper-7769:uDCmxnyyLkkPOCit@dev.nmr3n9v.mongodb.net") 
 db = client["Hack24"]  
 
 teacher_collection = db["Teacher"]
@@ -16,6 +17,7 @@ attendance_collection = db["Attendance"]
 
 @app.route('/test_db_connection')
 def test_db():
+    
     test_doc = {"message": "MongoDB connection successful!"}
     id = teacher_collection.insert_one(test_doc).inserted_id
     return "Test document inserted into MongoDB."
@@ -34,13 +36,10 @@ def get_teacher_courses(teacher_id):
     try:
         # Find the teacher's courses by teacher_id
         teacher_courses = teacher_collection.find_one({"_id": ObjectId(teacher_id)})
-        print(teacher_courses)
-
+        # print(teacher_courses)
         # Convert the cursor to a list of dictionaries
-        course_list = list(teacher_courses)
-        print(course_list)
 
-        return jsonify(course_list), 200
+        return jsonify({"data": teacher_courses["course_id"]}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -65,7 +64,7 @@ def get_teacher_course_attendance(teacher_id, course, date):
             else:
                 ans.append([student, "Present"])
         
-        return jsonify(ans), 200
+        return jsonify({"data": ans}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -93,7 +92,7 @@ def get_student_course_schedule_and_attendance(student_id, date):
                 course_attendance.append([course['_id'], 'Present'])
             else:
                 course_attendance.append([course['_id'], 'Absent'])
-        return jsonify(course_attendance), 200
+        return jsonify({"data": course_attendance}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
