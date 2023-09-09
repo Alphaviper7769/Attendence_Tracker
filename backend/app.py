@@ -17,7 +17,7 @@ attendance_collection = db["Attendance"]
 def test_db():
     
     test_doc = {"message": "MongoDB connection successful!"}
-    collecteacher_collection.insert_one(test_doc)
+    teacher_collection.insert_one(test_doc)
     return "Test document inserted into MongoDB."
 
 

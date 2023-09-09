@@ -2,7 +2,7 @@ import pymongo
 from pymongo import MongoClient
 
 # Create a MongoDB client and connect to your MongoDB server
-client = MongoClient("mongodb://localhost:27017/")  # Replace with your MongoDB connection URI
+client = MongoClient("mongodb+srv://Dumb_Programmer:minecraftdr@cluster0.1pyh8uu.mongodb.net/?retryWrites=true&w=majority")  # Replace with your MongoDB connection URI
 
 # Select the database you want to use
 db = client["Hack24"]  # Replace with your database name
