@@ -98,5 +98,79 @@ def get_student_course_schedule_and_attendance(student_id, date):
 
 
 
+@app.route('/teacher/<course_id>/validate', methods=['GET'])
+def get_validation_pictures(course_id):
+    try:
+        course_records = student_collection.find({"course_ids": ObjectId(course_id), "failsafe": {"$ne": None}})
+
+        # Extract pictures from the records
+        pictures = [record["photo"] for record in course_records]
+
+        return jsonify(pictures), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+
+
+
+@app.route('/teacher/<course_id>/validate', methods=['POST'])
+def validate_and_update_student_info(course_id):
+    try:
+        
+        student_id = request.form.get('student_id')
+        student_name = request.form.get('student_name')
+        failsafe_id = request.form.get('failsafe_id')
+
+        # Check if the student ID exists
+        existing_student = student_collection.find_one({"_id": ObjectId(student_id)})
+
+        if existing_student:
+            print("Student Exist")
+            failsafe_data = student_collection.find_one({"_id": ObjectId(failsafe_id)})
+            
+            if failsafe_data and "date" in failsafe_data:
+                date = failsafe_data["date"]
+
+                attendance_collection.update_one(
+                    {"student_id": ObjectId(student_id)},
+                    {"$push": {"dates": date}}
+                )
+
+                student_collection.delete_one(
+                    {"_id":ObjectId(failsafe_id)}
+                )
+
+                return jsonify({"message":"Attendence Updated"}),200
+            else:
+                return jsonify({"error":"failsafe data missing"}),402
+
+        else:
+            print("Student doesnt exist")
+            failsafe_data = student_collection.find_one({"_id": ObjectId(failsafe_id)})
+            if failsafe_data and "face" in failsafe_data:
+                face = failsafe_data["face"]
+                new_student={
+                    '_id':ObjectId(student_id),
+                    'face':face,
+                }
+                student_collection.insert_one(new_student)
+
+                course_collection.update_one
+                (
+                    {'_id':ObjectId(course_id)},
+                    {"$push": {"student_id":ObjectId(student_id)}}
+                )
+                return jsonify({"message":"New User Added"}),200
+            else:
+                return jsonify({"error":"failsafe data missing"}),402
+
+
+
+    except Exception as e:
+        return jsonify({"error":str(e)}),500
+
+
+
 if __name__ == '__main__':
     app.run()
