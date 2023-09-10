@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from bson import json_util
+import json
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -48,6 +50,7 @@ def get_teacher_courses(teacher_id):
             courses_final.append(course_name)
 
 
+
         # Convert the cursor to a list of dictionaries
 
         return jsonify({"data": courses_final}), 200
@@ -63,17 +66,27 @@ def get_teacher_courses(teacher_id):
 @app.route('/teacher/<teacher_id>/<course>/<date>', methods=['GET'])
 def get_teacher_course_attendance(teacher_id, course, date):
     ans = []
+    print(1)
     try:
         # Find the teacher's courses by teacher_id
         teacher_courses = teacher_collection.find({"_id": ObjectId(teacher_id)}).next()['course_id']
+        print(2)
+        print(teacher_courses)
 
         all_students = course_collection.find({ "_id": ObjectId(course) }).next()['student_ids']
+        print(all_students)
+        print(3)
         for student in all_students:
             attended = attendance_collection.find({ "student_id": ObjectId(student), "date": date, "course_id": ObjectId(course) })
+            print(4)
+            print(attended)
             if not attended:
                 ans.append([student, "Absent"])
             else:
                 ans.append([student, "Present"])
+        print(ans)
+        
+        ans = json.loads(json_util.dumps(ans))
         
         return jsonify({"data": ans}), 200
     except Exception as e:
