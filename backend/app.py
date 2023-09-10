@@ -36,10 +36,21 @@ def get_teacher_courses(teacher_id):
     try:
         # Find the teacher's courses by teacher_id
         teacher_courses = teacher_collection.find_one({"_id": ObjectId(teacher_id)})
-        # print(teacher_courses)
+        
+        
+        courses= teacher_courses['course_id']
+        print(courses)
+        courses_final = []
+        for course in courses:
+            print(course) 
+            course_name=course_collection.find_one({"_id":ObjectId(course)})['name']
+            print(course_name)
+            courses_final.append(course_name)
+
+
         # Convert the cursor to a list of dictionaries
 
-        return jsonify({"data": teacher_courses["course_id"]}), 200
+        return jsonify({"data": courses_final}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
