@@ -101,21 +101,27 @@ def get_teacher_course_attendance(teacher_id, course, date):
 
 @app.route('/student/<student_id>/<date>', methods=['GET'])
 def get_student_course_schedule_and_attendance(student_id, date):
+    print(1)
     try:
         
         student = student_collection.find_one({"_id": ObjectId(student_id)})
+        print(2)
 
         if not student:
             return jsonify({"error": "Student not found"}), 404
 
         # Find the courses associated with the student
         courses = list(course_collection.find())
+        print(3)
         course_attendance = []
         for course in courses:
             if ObjectId(student_id) in course['student_ids']:
                 course_attendance.append([course['_id'], 'Present'])
             else:
                 course_attendance.append([course['_id'], 'Absent'])
+        print(4)
+        print(course_attendance)
+        course_attendance = json.loads(json_util.dumps(course_attendance))
         return jsonify({"data": course_attendance}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
